@@ -3,8 +3,9 @@ import Upload from './Pages/Upload';
 
 function App() {
   return (
-    <div className="App">
-      <Upload />
+    <div >
+      <Home />
+      
     </div>
   );
 }
