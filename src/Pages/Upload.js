@@ -1,58 +1,84 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { Grid, Paper, TextField, Button } from '@material-ui/core';
+import { Button, TextField } from '@material-ui/core';
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    background: 'linear-gradient(45deg, #FE6B8B 30%, #FF8E53 90%)',
-    height: '100vh',
-  },
-  paper: {
-    padding: theme.spacing(3),
-  },
+const useStyles = makeStyles(theme => ({
   form: {
     display: 'flex',
     flexDirection: 'column',
-    alignItems: 'center',
     justifyContent: 'center',
+    alignItems: 'center',
+    margin: 'auto',
+    width: '50%',
   },
-  input: {
-    margin: theme.spacing(2, 0),
+  textField: {
+    margin: theme.spacing(1),
+    width: '100%',
+  },
+  fileInput: {
+    display: 'none',
+  },
+  button: {
+    margin: theme.spacing(1),
   },
 }));
 
-const UploadForm = () => {
+export default function UploadForm() {
   const classes = useStyles();
+  const [username, setUsername] = useState('');
+  const [description, setDescription] = useState('');
+  const [selectedFile, setSelectedFile] = useState(null);
+
+  const handleFileChange = (event) => {
+    setSelectedFile(event.target.files[0]);
+  };
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    // Do something with the form data (e.g. upload the file)
+  };
 
   return (
-    <div className={classes.root}>
-      <Grid container alignItems="center" justify="center" style={{ height: '100%' }}>
-        <Grid item xs={12} sm={8} md={6}>
-          <Paper elevation={3} className={classes.paper}>
-            <form className={classes.form}>
-              <TextField
-                className={classes.input}
-                label="Username"
-                variant="outlined"
-                fullWidth
-              />
-              <TextField
-                className={classes.input}
-                label="Description"
-                variant="outlined"
-                fullWidth
-                multiline
-                rows={4}
-              />
-              <Button variant="contained" color="primary">
-                Upload
-              </Button>
-            </form>
-          </Paper>
-        </Grid>
-      </Grid>
-    </div>
+    <form className={classes.form} onSubmit={handleSubmit}>
+      <TextField
+        required
+        className={classes.textField}
+        label="Username"
+        value={username}
+        onChange={(event) => setUsername(event.target.value)}
+      />
+      <TextField
+        required
+        className={classes.textField}
+        label="Description"
+        value={description}
+        onChange={(event) => setDescription(event.target.value)}
+      />
+      <input
+        accept="image/*"
+        className={classes.fileInput}
+        id="file-input"
+        type="file"
+        onChange={handleFileChange}
+      />
+      <label htmlFor="file-input">
+        <Button
+          className={classes.button}
+          variant="contained"
+          component="span"
+          color="primary"
+        >
+          Upload File
+        </Button>
+      </label>
+      <Button
+        className={classes.button}
+        variant="contained"
+        color="primary"
+        type="submit"
+      >
+        Submit
+      </Button>
+    </form>
   );
-};
-
-export default UploadForm;
+}

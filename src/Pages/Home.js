@@ -1,53 +1,27 @@
 import React from 'react';
-import { makeStyles } from '@material-ui/core/styles';
-import { AppBar, Toolbar, Typography, Button, Grid, Container } from '@material-ui/core';
-import Connect from '../Components/Connect';
-
-const useStyles = makeStyles((theme) => ({
-  root: {
-    background: 'blue',
-    flexGrow: 1,
-    height: '100vh',
-  },
-  title: {
-    flexGrow: 1,
-    textAlign: 'center',
-  },
-  main: {
-    paddingTop: theme.spacing(4),
-    textAlign: 'center',
-  },
-}));
-
+import '../Styles/Nav.css'
 const Home = () => {
-  const classes = useStyles();
-
   return (
-    <div className={classes.root}>
-      <AppBar position="static">
-        <Toolbar>
-          <Typography variant="h6" className={classes.title}>
-            Hello
-          </Typography>
-          <Button color="inherit">Home</Button>
-          <Button color="inherit">Upload</Button>
-          <Button color="inherit">Verify</Button>
-          <Button color="inherit">About</Button>
-          <button> COnnect</button>
-        </Toolbar>
-      </AppBar>
-      <Container maxWidth="md">
-        <Grid container spacing={3} className={classes.main}>
-          <Grid item xs={12}>
-            <Typography variant="h2" component="h1" gutterBottom>
-              The Future of Notarization is Here
-            </Typography>
-            <Typography variant="h4" component="h2" gutterBottom>
-              Your Digital Footprint, Verified and Secured
-            </Typography>
-          </Grid>
-        </Grid>
-      </Container>
+    <div className="container">
+      <nav>
+        <div className="logo">
+          <a href="Home.html" style={{ textDecoration: 'none' }}>
+            <img src="/" style={{ cursor: 'pointer' }} alt="Quasar logo" />
+          </a>
+        </div>
+
+        <div className="side">
+          <ul>
+            <li><a href="/">Upload</a></li>
+            <li><a>Verify</a></li>
+            <li><a>Recent</a></li>
+            <li><a href="index.html">Connect wallet</a></li>
+          </ul>
+        </div>
+      </nav>
+      <div className="content">
+        <h1>This is the Home page</h1>
+      </div>
     </div>
   );
 };
