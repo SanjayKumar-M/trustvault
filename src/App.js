@@ -1,5 +1,5 @@
 import Home from './Pages/Home';
-import Upload from './Pages/Upload';
+import UploadForm from './Pages/Upload';
 
 function App() {
   return (
