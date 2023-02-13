@@ -27,7 +27,7 @@ export default function UploadForm() {
   const classes = useStyles();
   const [username, setUsername] = useState('');
   const [description, setDescription] = useState('');
-  const [selectedFile, setSelectedFile] = useState(null);
+  const [setSelectedFile] = useState(null);
 
   const handleFileChange = (event) => {
     setSelectedFile(event.target.files[0]);

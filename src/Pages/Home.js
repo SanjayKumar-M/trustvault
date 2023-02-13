@@ -1,21 +1,30 @@
 import React from 'react';
 import '../Styles/Nav.css'
+// import Connect from '../Components/Connect';
+
+import { Link } from 'react-router-dom';
 const Home = () => {
   return (
     <div className="container">
       <nav>
         <div className="logo">
-          <a href="Home.html" style={{ textDecoration: 'none' }}>
+          <Link to="/Home" style={{ textDecoration: 'none' }}>
             <img src="/" style={{ cursor: 'pointer' }} alt="Quasar logo" />
-          </a>
+          </Link>
         </div>
 
         <div className="side">
           <ul>
-            <li><a href="/">Upload</a></li>
-            <li><a>Verify</a></li>
-            <li><a>Recent</a></li>
-            <li><a href="index.html">Connect wallet</a></li>
+            <li>
+              <Link to="/UploadForm">Upload</Link>
+            </li>
+            <li>
+              <Link to="/Verify">Verify</Link>
+            </li>
+            <li>
+              <Link to="/Recent">Recent</Link>
+            </li>
+            {/* <li><Connect /></li> */}
           </ul>
         </div>
       </nav>
