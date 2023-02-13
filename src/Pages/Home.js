@@ -20,7 +20,7 @@ const Home = () => {
         </div>
       </nav>
       <div className="content">
-        <h1>This is the Home page</h1>
+        <h1>Decentralized Notary Service</h1>
       </div>
     </div>
   );
