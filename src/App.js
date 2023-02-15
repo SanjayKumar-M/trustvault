@@ -9,10 +9,10 @@ function App() {
     <div >
       <BrowserRouter>
         <Routes>
-          <Route exact path='Home' element={<Home />} />
-          <Route exact path='UploadForm' element={<UploadForm />} />
-          <Route exact path='Recent' element={<Recent />} />
-          <Route exactpath='Verify' element={<Verify />} />
+          <Route  path="/" element={<Home />} />
+          <Route  path="/upload" element={<UploadForm />} />
+          <Route  path="/recent" element={<Recent />} />
+          <Route  path="verify" element={<Verify />} />
         </Routes>
       </BrowserRouter>
     </div>

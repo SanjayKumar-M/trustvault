@@ -1,7 +1,7 @@
 import React from 'react';
 import '../Styles/Nav.css'
 // import Connect from '../Components/Connect';
-
+import { Navigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 const Home = () => {
   return (
@@ -16,13 +16,13 @@ const Home = () => {
         <div className="side">
           <ul>
             <li>
-              <Link to="/UploadForm">Upload</Link>
+              <Link to="/upload">Upload</Link>
             </li>
             <li>
-              <Link to="/Verify">Verify</Link>
+              <Link to="/verify">Verify</Link>
             </li>
             <li>
-              <Link to="/Recent">Recent</Link>
+              <Link to="/recent">Recent</Link>
             </li>
             {/* <li><Connect /></li> */}
           </ul>
