@@ -29,7 +29,7 @@ const Connect = () => {
 
   return connectedWallet ? (
     <Button variant="contained" color="primary">
-      Connected to {connectedWallet}
+      {connectedWallet}
     </Button>
   ) : (
     <Button variant="contained" color="secondary" onClick={() => window.ethereum.enable()}>

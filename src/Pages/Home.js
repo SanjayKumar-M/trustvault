@@ -1,6 +1,6 @@
 import React from 'react';
 import '../Styles/Nav.css'
-// import Connect from '../Components/Connect';
+import Connect from '../Components/Connect';
 import { Navigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 const Home = () => {
@@ -24,7 +24,7 @@ const Home = () => {
             <li>
               <Link to="/recent">Recent</Link>
             </li>
-            {/* <li><Connect /></li> */}
+            <li><Connect /></li>
           </ul>
         </div>
       </nav>
