@@ -1,7 +1,6 @@
 import React from 'react';
 import '../Styles/Nav.css'
 import Connect from '../Components/Connect';
-import { Navigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 const Home = () => {
   return (
