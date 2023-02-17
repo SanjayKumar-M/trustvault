@@ -1,40 +1,47 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.7.0 <0.9.0;
 
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+
 contract NotaryService {
   struct Document {
-    bytes32 hash;
+    string cid;
     uint timestamp;
     bool exists;
   }
 
   mapping (address => Document[]) public notarizedDocuments;
-  mapping (bytes32 => bool) public notarizedHashes;
+  mapping (string => bool) public notarizedCIDs;
   address private owner;
+  IERC20 private filecoin; // Filecoin ERC20 token address
   uint private fee;
 
-  constructor() {
+  constructor(IERC20 _filecoin) {
     owner = msg.sender;
     fee = 1 ether; // adjust the fee amount as needed
+    filecoin = _filecoin;
   }
 
-  function notarizeDocument(bytes32 hash) public payable {
-    require(msg.value == fee, "Not enough Ether to pay the fee.");
-    require(!notarizedHashes[hash], "This document has already been notarized.");
-    notarizedHashes[hash] = true;
-    notarizedDocuments[msg.sender].push(Document(hash, block.timestamp, true));
+  function notarizeDocument(string memory cid) public {
+    require(!notarizedCIDs[cid], "This document has already been notarized.");
+    notarizedCIDs[cid] = true;
+    notarizedDocuments[msg.sender].push(Document(cid, block.timestamp, true));
   }
 
-  function getNotarizedDocuments() public view returns (bytes32[] memory hashes, uint[] memory timestamps) {
+  function getNotarizedDocuments() public view returns (string[] memory cids, uint[] memory timestamps) {
     uint len = notarizedDocuments[owner].length;
-    hashes = new bytes32[](len);
+    cids = new string[](len);
     timestamps = new uint[](len);
     for (uint i = 0; i < len; i++) {
-      hashes[i] = notarizedDocuments[owner][i].hash;
+      cids[i] = notarizedDocuments[owner][i].cid;
       timestamps[i] = notarizedDocuments[owner][i].timestamp;
     }
-    return (hashes, timestamps);
+    return (cids, timestamps);
   }
 
-
+  function payFee() public {
+    require(filecoin.balanceOf(msg.sender) >= fee, "Not enough Filecoin to pay the fee.");
+    require(filecoin.allowance(msg.sender, address(this)) >= fee, "Not enough Filecoin allowance.");
+    filecoin.transferFrom(msg.sender, owner, fee);
+  }
 }

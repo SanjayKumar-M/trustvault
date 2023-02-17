@@ -1,27 +1,18 @@
 const hre = require("hardhat");
 
 async function main() {
-  const [deployer] = await hre.ethers.getSigners();
-
-  console.log("Deploying contract with the account:", deployer.address);
-
   const NotaryService = await hre.ethers.getContractFactory("NotaryService");
-  const notaryService = await NotaryService.deploy();
+  const filecoinTokenAddress = "0x0d8ce2a99bb6e3b7db580ed848240e4a0f9ae153"; 
+  const notaryService = await NotaryService.deploy(filecoinTokenAddress);
 
-  console.log("NotaryService contract deployed to address:", notaryService.address);
+  await notaryService.deployed();
 
-  const fee = hre.ethers.utils.parseEther("1");
-  const tx = await notaryService.connect(deployer).notarizeDocument("0x1234567890123456789012345678901234567890123456789012345678901234", {value: fee});
-
-  console.log("Notarized document with transaction hash:", tx.hash);
-
-  const [hashes, timestamps] = await notaryService.getNotarizedDocuments();
-  console.log("Notarized documents:", hashes, timestamps);
+  console.log("NotaryService deployed to:", notaryService.address);
+  
+  
 }
 
-main()
-  .then(() => process.exit(0))
-  .catch(error => {
-    console.error(error);
-    process.exit(1);
-  });
+main().catch(error => {
+  console.error(error);
+  process.exit(1);
+});
