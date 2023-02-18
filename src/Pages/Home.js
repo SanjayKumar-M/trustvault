@@ -7,9 +7,9 @@ const Home = () => {
   return (
     <div className="container">
       <nav>
-        <div className="logo">
+        <div className="logo" >
           <Link to="/Home" style={{ textDecoration: 'none' }}>
-            <img src="/" style={{ cursor: 'pointer' }} alt="Quasar logo" />
+            <h2 color='white'>Trust Vault</h2>
           </Link>
         </div>
 

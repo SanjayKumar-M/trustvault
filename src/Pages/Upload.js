@@ -1,152 +1,89 @@
-import React, { useState, useEffect } from "react";
-import styled from "styled-components";
-import { makeStyles } from "@material-ui/core/styles";
-import Button from "@material-ui/core/Button";
-import TextField from "@material-ui/core/TextField";
-import { useWeb3React } from "@web3-react/core";
-import { ethers } from "ethers";
-import { NotaryServiceABI, NotaryServiceAddress } from "../Utils/Constants";
+// 0x5FbDB2315678afecb367f032d93F642f64180aa3
+import React, { useState } from 'react';
+import { makeStyles } from '@material-ui/core/styles';
+import { Button, TextField } from '@material-ui/core';
+import { Filecoin } from 'filecoin.js';
+import ipfsClient from 'ipfs-mini';
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    margin: theme.spacing(4),
-    color: "black",
-  },
-  input: {
-    display: "none",
-  },
-  button: {
-    marginTop: theme.spacing(2),
+    '& > *': {
+      margin: theme.spacing(1),
+      width: '25ch',
+    },
   },
 }));
 
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin: 40px;
-`;
+const NotaryServiceContractAddress = '0x5FbDB2315678afecb367f032d93F642f64180aa3';
+const FilecoinTokenAddress = '0x0d8ce2a99bb6e3b7db580ed848240e4a0f9ae153';
 
-const Upload = () => {
-  const { library, account } = useWeb3React();
+const ipfs = new ipfsClient({ host: 'ipfs.infura.io', port: 5001, protocol: 'https' });
+
+const App = () => {
   const classes = useStyles();
-  const [file, setFile] = useState(null);
-  const [hash, setHash] = useState("");
-  const [uploading, setUploading] = useState(false);
-  const [notarized, setNotarized] = useState(false);
-  const [confirmationStatus, setConfirmationStatus] = useState("");
-  const provider = new ethers.providers.Web3Provider(window.ethereum);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [fileCID, setFileCID] = useState('');
 
-  useEffect(() => {
-    if (account) {
-      provider.getNetwork().then((network) => {
-        const signer = provider.getSigner();
-        const contract = new ethers.Contract(
-          NotaryServiceAddress,
-          NotaryServiceABI,
-          signer
-        );
-        contract.connect(signer).setNetwork(network.chainId);
+  const handleFileChange = (event) => {
+    setSelectedFile(event.target.files[0]);
+  };
+
+  const uploadFile = async () => {
+    if (selectedFile) {
+      const fileData = await selectedFile.arrayBuffer();
+      const cid = await ipfs.add(fileData);
+      setFileCID(cid);
+    }
+  };
+
+  const notarizeDocument = async () => {
+    try {
+      if (!window.ethereum) {
+        throw new Error('No Ethereum provider found');
+      }
+
+      const provider = window.ethereum;
+      await provider.enable();
+
+      const filecoin = new Filecoin(provider);
+
+      const contract = await filecoin.contractAt(NotaryServiceContractAddress, null);
+      const accounts = await filecoin.getAccounts();
+      const senderAddress = accounts[0];
+
+      const notarizeTx = await contract.notarizeDocument(fileCID).send({
+        from: senderAddress,
+        gasPrice: '1000000000',
+        gasLimit: 100000,
       });
-    }
-  }, [account, provider]);
 
-  const handleFileChange = (e) => {
-    const selectedFile = e.target.files[0];
-    setFile(selectedFile);
-    const reader = new FileReader();
-    reader.readAsArrayBuffer(selectedFile);
-    reader.onload = async () => {
-      if (library && library.utils) {
-        const data = new Uint8Array(await reader.result);
-        const hash = await library.utils.keccak256(data);
-        setHash(hash);
-      }
-    };
-  };
+      console.log('Notarization transaction:', notarizeTx);
 
-  const isUploadButtonDisabled = !file || uploading || !hash;
+      const payFeeTx = await contract.payFee().send({
+        from: senderAddress,
+        gasPrice: '1000000000',
+        gasLimit: 100000,
+        value: '1000000000000000000', // 1 FIL fee
+        method: 'send',
+        params: [FilecoinTokenAddress],
+      });
 
-  const handleUpload = async () => {
-    try {
-      setUploading(true);
-      if (library) {
-        const signer = library.getSigner();
-        const contract = new ethers.Contract(
-          NotaryServiceAddress,
-          NotaryServiceABI,
-          signer
-        );
-        await contract.notarizeDocument(hash);
-        setNotarized(true);
-      }
+      console.log('Fee payment transaction:', payFeeTx);
     } catch (error) {
-      console.log(error);
-    } finally {
-      setUploading(false);
-    }
-  };
-
-  const handlePayFee = async () => {
-    try {
-      const signer = library.getSigner();
-      const contract = new ethers.Contract(
-        NotaryServiceAddress,
-        NotaryServiceABI,
-        signer
-      );
-      const tx = await contract.payFee();
-      setConfirmationStatus(
-        "Transaction confirmed. Transaction hash: " + tx.hash
-      );
-    } catch (error) {
-      console.log(error);
+      console.error('Error notarizing document:', error);
     }
   };
 
   return (
-    <Container>
-      <TextField
-        variant="outlined"
-        margin="normal"
-        required
-        fullWidth
-        label="Select a file to upload"
-        type="file"
-        onChange={handleFileChange}
-      />
-      {file && (
-        <div>
-          <p>File hash: {hash}</p>
-          <Button
-            variant="contained"
-            color="primary"
-            disabled={isUploadButtonDisabled}
-            onClick={handleUpload}
-          >
-            {uploading ? "Uploading..." : "Upload"}
-          </Button>
-          {notarized && (
-            <div>
-              <p>File notarized successfully.</p>
-              <Button
-                variant="contained"
-                color="primary"
-                className={classes.button}
-                onClick={handlePayFee}
-              >
-                Pay Notary Fee
-              </Button>
-              {confirmationStatus && <p>{confirmationStatus}</p>}
-            </div>
-          )}
-        </div>
-      )}
-    </Container>
+    <div className="App">
+      <form className={classes.root} noValidate autoComplete="off">
+        <TextField id="file-upload" label="Upload a file" type="file" onChange={handleFileChange} />
+        <Button variant="contained" color="primary" onClick={uploadFile}>Upload to IPFS</Button>
+        <TextField id="file-cid" label="File CID" value={fileCID} disabled />
+        <Button variant="contained" color="primary" onClick={notarizeDocument}>Notarize</Button>
+      </form>
+    </div>
   );
 };
 
-export default Upload;
+export default App;
