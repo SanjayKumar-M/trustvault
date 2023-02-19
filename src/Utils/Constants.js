@@ -1,7 +1,5 @@
-// Replace with the deployed NotaryService contract address
-export const NotaryServiceAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
+export const NotaryServiceAddress = "0xa2Def0a9B19F79143ceAf5215396d2741C0cBC7f";
 
-// Replace with the ABI of the NotaryService contract
 export const NotaryServiceABI = [
     {
         "inputs": [
@@ -107,10 +105,4 @@ export const NotaryServiceABI = [
       }
 ];
 
-// Replace with the address of the Filecoin ERC20 token
 export const FilecoinAddress = "0x0d8ce2a99bb6e3b7db580ed848240e4a0f9ae153";
-
-// Replace with the ABI of the Filecoin ERC20 token
-// export const FilecoinABI = [
-//   // ... ERC20 ABI goes here ...
-// ];

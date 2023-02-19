@@ -24,7 +24,7 @@ console.error("Metamask is not installed");
 
 return connectedWallet ? (
 <Button variant="contained" color="primary">
-{connectedWallet}
+0xF75...4465
 </Button>
 ) : (
 <Button variant="contained" color="secondary" onClick={connectToMetamask}>

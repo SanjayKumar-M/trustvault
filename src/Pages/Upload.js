@@ -1,89 +1,127 @@
-// 0x5FbDB2315678afecb367f032d93F642f64180aa3
-import React, { useState } from 'react';
+//eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweDQzMkI3QTI3NzIzM0QwMDYxMjdCNkFhNzIxNTk1MTg4NDMxNmE0NjMiLCJpc3MiOiJ3ZWIzLXN0b3JhZ2UiLCJpYXQiOjE2NzY4MjAyNDkzNjUsIm5hbWUiOiJUcnVzdHZhdWx0In0.JjdF0q2YKIABv0YcT6sa5MPs1KmVIb8fsUkbyBzz2Cs
+import React, { useState, useRef } from 'react';
+import { Button, Container, TextField } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import { Button, TextField } from '@material-ui/core';
-import { Filecoin } from 'filecoin.js';
-import ipfsClient from 'ipfs-mini';
+// import { Web3Storage } from 'web3.storage';
+import { Web3Storage } from 'web3.storage/dist/bundle.esm.min.js'
+import NotaryService from '../Utils/NotaryService.json';
+import { ethers } from 'ethers';
+
+const web3Storage = new Web3Storage({ token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweDQzMkI3QTI3NzIzM0QwMDYxMjdCNkFhNzIxNTk1MTg4NDMxNmE0NjMiLCJpc3MiOiJ3ZWIzLXN0b3JhZ2UiLCJpYXQiOjE2NzY4MjAyNDkzNjUsIm5hbWUiOiJUcnVzdHZhdWx0In0.JjdF0q2YKIABv0YcT6sa5MPs1KmVIb8fsUkbyBzz2Cs" });
+const contractAddress = '0xa2Def0a9B19F79143ceAf5215396d2741C0cBC7f';
+const notaryServiceABI = NotaryService.abi;
+
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    '& > *': {
-      margin: theme.spacing(1),
-      width: '25ch',
-    },
+    marginTop: theme.spacing(4),
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+  },
+  input: {
+    display: 'none',
+  },
+  button: {
+    marginTop: theme.spacing(2),
   },
 }));
 
-const NotaryServiceContractAddress = '0x5FbDB2315678afecb367f032d93F642f64180aa3';
-const FilecoinTokenAddress = '0x0d8ce2a99bb6e3b7db580ed848240e4a0f9ae153';
-
-const ipfs = new ipfsClient({ host: 'ipfs.infura.io', port: 5001, protocol: 'https' });
-
-const App = () => {
+const Upload = () => {
   const classes = useStyles();
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [fileCID, setFileCID] = useState('');
+  const [file, setFile] = useState(null);
+  const [cid, setCid] = useState(null);
+  const [notarized, setNotarized] = useState(false);
+  const fileInput = useRef();
 
-  const handleFileChange = (event) => {
-    setSelectedFile(event.target.files[0]);
+  const handleChange = () => {
+    setFile(fileInput.current.files[0]);
   };
 
-  const uploadFile = async () => {
-    if (selectedFile) {
-      const fileData = await selectedFile.arrayBuffer();
-      const cid = await ipfs.add(fileData);
-      setFileCID(cid);
+  const uploadToWeb3Storage = async () => {
+    if (file) {
+      const stream = file.stream();
+      const cid = await web3Storage.put(stream);
+      setCid(cid);
     }
   };
+  
 
   const notarizeDocument = async () => {
-    try {
-      if (!window.ethereum) {
-        throw new Error('No Ethereum provider found');
+    if (cid) {
+      try {
+        const ethereum = window.ethereum;
+        await ethereum.enable();
+        const provider = new ethers.providers.Web3Provider(ethereum);
+        const signer = provider.getSigner();
+        const contract = new ethers.Contract(contractAddress, notaryServiceABI, signer);
+        const transaction = await contract.notarizeDocument(cid);
+        await transaction.wait();
+        setNotarized(true);
+      } catch (error) {
+        console.error('Error notarizing document:', error);
       }
-
-      const provider = window.ethereum;
-      await provider.enable();
-
-      const filecoin = new Filecoin(provider);
-
-      const contract = await filecoin.contractAt(NotaryServiceContractAddress, null);
-      const accounts = await filecoin.getAccounts();
-      const senderAddress = accounts[0];
-
-      const notarizeTx = await contract.notarizeDocument(fileCID).send({
-        from: senderAddress,
-        gasPrice: '1000000000',
-        gasLimit: 100000,
-      });
-
-      console.log('Notarization transaction:', notarizeTx);
-
-      const payFeeTx = await contract.payFee().send({
-        from: senderAddress,
-        gasPrice: '1000000000',
-        gasLimit: 100000,
-        value: '1000000000000000000', // 1 FIL fee
-        method: 'send',
-        params: [FilecoinTokenAddress],
-      });
-
-      console.log('Fee payment transaction:', payFeeTx);
-    } catch (error) {
-      console.error('Error notarizing document:', error);
     }
   };
 
   return (
-    <div className="App">
-      <form className={classes.root} noValidate autoComplete="off">
-        <TextField id="file-upload" label="Upload a file" type="file" onChange={handleFileChange} />
-        <Button variant="contained" color="primary" onClick={uploadFile}>Upload to IPFS</Button>
-        <TextField id="file-cid" label="File CID" value={fileCID} disabled />
-        <Button variant="contained" color="primary" onClick={notarizeDocument}>Notarize</Button>
-      </form>
-    </div>
-  );
-};
+    <Container maxWidth="sm">
+      <div className={classes.root}>
+        <input
+          className={classes.input}
+          id="contained-button-file"
+          type="file"
+          ref={fileInput}
+          onChange={handleChange}
+        />
 
-export default App;
+        <label htmlFor="contained-button-file">
+          <Button variant="contained" color="primary" component="span">
+            Upload file
+          </Button>
+        </label>
+
+        {cid && (
+          <TextField
+            variant="outlined"
+            margin="normal"
+            fullWidth
+            id="cid"
+            label="IPFS CID"
+            value={cid}
+            disabled
+          />
+        )}
+
+        <Button
+          className={classes.button}
+          variant="contained"
+          color="primary"
+          onClick={uploadToWeb3Storage}
+          disabled={!file || cid}
+        >
+          Upload to Web3 Storage
+        </Button>
+
+        {cid && !notarized && (
+          <Button
+            className={classes.button}
+            variant="contained"
+            color="primary"
+            onClick={notarizeDocument}
+            disabled={notarized}
+          >
+            Notarize document
+          </Button>
+        )}
+
+        {notarized && (
+          <p>Document notarized!</p>
+        )}
+      </div>
+    </Container>
+
+  );
+}
+
+export default Upload;
