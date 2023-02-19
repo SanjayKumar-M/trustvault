@@ -1,13 +1,13 @@
-//eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweDQzMkI3QTI3NzIzM0QwMDYxMjdCNkFhNzIxNTk1MTg4NDMxNmE0NjMiLCJpc3MiOiJ3ZWIzLXN0b3JhZ2UiLCJpYXQiOjE2NzY4MjAyNDkzNjUsIm5hbWUiOiJUcnVzdHZhdWx0In0.JjdF0q2YKIABv0YcT6sa5MPs1KmVIb8fsUkbyBzz2Cs
+
 import React, { useState, useRef } from 'react';
 import { Button, Container, TextField } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-// import { Web3Storage } from 'web3.storage';
+
 import { Web3Storage } from 'web3.storage/dist/bundle.esm.min.js'
 import NotaryService from '../Utils/NotaryService.json';
 import { ethers } from 'ethers';
 
-const web3Storage = new Web3Storage({ token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweDQzMkI3QTI3NzIzM0QwMDYxMjdCNkFhNzIxNTk1MTg4NDMxNmE0NjMiLCJpc3MiOiJ3ZWIzLXN0b3JhZ2UiLCJpYXQiOjE2NzY4MjAyNDkzNjUsIm5hbWUiOiJUcnVzdHZhdWx0In0.JjdF0q2YKIABv0YcT6sa5MPs1KmVIb8fsUkbyBzz2Cs" });
+const web3Storage = new Web3Storage({ token: "TOKEN-HERE" });
 const contractAddress = '0xa2Def0a9B19F79143ceAf5215396d2741C0cBC7f';
 const notaryServiceABI = NotaryService.abi;
 
