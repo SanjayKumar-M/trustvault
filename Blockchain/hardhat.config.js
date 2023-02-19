@@ -4,7 +4,7 @@ module.exports = {
   solidity: "0.8.17",
   networks: {
     mumbai: {
-      url: 'https://polygon-mumbai.g.alchemy.com/v2/sDgBhv6AbwLSq3WMmDt3P6dFqPY-Rre0',
+      url: 'URL-HERE',
       accounts: ['Private-Key'],
 
     },
